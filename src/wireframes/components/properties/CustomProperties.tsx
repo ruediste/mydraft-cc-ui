@@ -9,6 +9,7 @@ import { Checkbox, Col, InputNumber, Row, Select } from 'antd';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { Color, ColorPalette, ColorPicker, useEventCallback } from '@app/core';
 import { useAppDispatch } from '@app/store';
+import { Shape } from '@app/wireframes/interface';
 import { changeItemsAppearance, ColorConfigurable, Configurable, getColors, getDiagramId, getSelection, NumberConfigurable, selectColorTab, SelectionConfigurable, SliderConfigurable, TextConfigurable, ToggleConfigurable, useStore } from '@app/wireframes/model';
 import { CustomSlider } from './CustomSlider';
 import { Text } from './Text';
@@ -31,6 +32,8 @@ interface CustomPropertyProps {
 
     // The color tab has changed.
     onColorTabChange: (key: string) => void;
+
+    shape: Shape;
 }
 
 export const CustomProperty = (props: CustomPropertyProps) => {
@@ -41,6 +44,7 @@ export const CustomProperty = (props: CustomPropertyProps) => {
         recentColors,
         selectedColorTab,
         value,
+        shape,
     } = props;
 
     const doChangeValue = useEventCallback((newValue: any) => {
@@ -89,7 +93,7 @@ export const CustomProperty = (props: CustomPropertyProps) => {
                     <Select value={value}
                         onChange={doChangeValue}
                     >
-                        {configurable.options.map(o =>
+                        {configurable.getOptions(shape).map(o =>
                             <Select.Option key={o} value={o}>{o}</Select.Option>,
                         )}
                     </Select>
@@ -143,6 +147,7 @@ export const CustomProperties = () => {
                     onColorTabChange={doSelectColorTab}
                     recentColors={recentColors}
                     value={selectedShape.appearance.get(c.name)}
+                    shape={selectedShape}
                 />,
             )}
         </>

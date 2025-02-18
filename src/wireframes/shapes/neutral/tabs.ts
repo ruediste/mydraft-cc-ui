@@ -5,7 +5,7 @@
  * Copyright (c) Sebastian Stehle. All rights reserved.
 */
 
-import { Color, ConfigurableFactory, DefaultAppearance, Rect2, RenderContext, ShapePlugin, ShapeProperties } from '@app/wireframes/interface';
+import { Color, ConfigurableFactory, DefaultAppearance, Rect2, RenderContext, Shape, ShapePlugin, ShapeProperties } from '@app/wireframes/interface';
 import { CommonTheme } from './_theme';
 
 const TAB_COLOR = 'TAB_COLOR';
@@ -15,6 +15,7 @@ const TAB_ALIGNMENT_RIGHT = 'Right';
 const TAB_POSITION = 'TAB_POSITION';
 const TAB_POSITION_TOP = 'Top';
 const TAB_POSITION_BOTTOM = 'Bottom';
+const TAB_SELECTED = 'TAB_SELECTED';
 
 const DEFAULT_APPEARANCE = {
     [DefaultAppearance.FOREGROUND_COLOR]: CommonTheme.CONTROL_TEXT_COLOR,
@@ -27,6 +28,7 @@ const DEFAULT_APPEARANCE = {
     [TAB_COLOR]: CommonTheme.CONTROL_BACKGROUND_COLOR,
     [TAB_ALIGNMENT]: TAB_ALIGNMENT_LEFT,
     [TAB_POSITION]: TAB_POSITION_TOP,
+    [TAB_SELECTED]: null,
 };
 
 export class Tabs implements ShapePlugin {
@@ -53,6 +55,7 @@ export class Tabs implements ShapePlugin {
                 TAB_POSITION_BOTTOM,
             ]),
             factory.color(TAB_COLOR, 'Tab Color'),
+            factory.selection(TAB_SELECTED, 'Selected', shape=>this.parseTextParts(shape).map(x=>x.text)),
         ];
     }
 
@@ -130,6 +133,31 @@ export class Tabs implements ShapePlugin {
         p.setStrokeColor(ctx.shape);
     }
 
+    private parseTextParts(shape: Shape) {
+        const key = `${ shape.text}`;
+
+        let result = shape.renderCache['PARSED_TEXT'] as { key: string; parts: ParsedTextParts };
+
+        if (!result || result.key !== key) {
+            const parts: ParsedTextParts = [];
+
+            for (let text of shape.text.split(',')) {
+                const selected = text.endsWith('*');
+
+                if (selected) {
+                    text = text.substring(0, text.length - 1).trim();
+                }
+
+                parts.push({ text, selected });
+            }
+
+            result = { key, parts };
+            shape.renderCache['PARSED_TEXT'] = result;
+        }
+
+        return result.parts;
+    }
+
     private parseText(ctx: RenderContext, fontFamily: string, fontSize: number, strokeThickness: number) {
         const isRight = ctx.shape.getAppearance(TAB_ALIGNMENT) === TAB_ALIGNMENT_RIGHT;
         const key = `${ctx.shape.text}_${fontFamily}_${fontSize}_${strokeThickness}_${isRight}`;
@@ -143,12 +171,7 @@ export class Tabs implements ShapePlugin {
 
             let x = 0;
 
-            for (let text of ctx.shape.text.split(',')) {
-                const selected = text.endsWith('*');
-
-                if (selected) {
-                    text = text.substring(0, text.length - 1).trim();
-                }
+            for (let { text, selected } of this.parseTextParts(ctx.shape)) {
 
                 const width = ctx.renderer2.getTextWidth(text, fontSize, fontFamily) + fontSize;
 
@@ -184,4 +207,5 @@ export class Tabs implements ShapePlugin {
 
 const PADDING = 20;
 
-type Parsed = { text: string; selected?: boolean; x: number; width: number }[];
+type ParsedTextParts = { text: string; selected: boolean }[];
+type Parsed = { text: string; selected: boolean; x: number; width: number }[];

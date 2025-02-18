@@ -6,7 +6,7 @@
 */
 
 import { TextMeasurer } from '@app/core';
-import { ConfigurableFactory, ConstraintFactory } from '@app/wireframes/interface';
+import { ConfigurableFactory, ConstraintFactory, Shape } from '@app/wireframes/interface';
 import { ColorConfigurable, NumberConfigurable, SelectionConfigurable, SliderConfigurable, TextConfigurable, ToggleConfigurable } from './configurables';
 import { Constraint, MinSizeConstraint, SizeConstraint, TextHeightConstraint, TextSizeConstraint } from './constraints';
 
@@ -33,7 +33,7 @@ export class DefaultConstraintFactory implements ConstraintFactory {
 export class DefaultConfigurableFactory implements ConfigurableFactory {
     public static readonly INSTANCE = new DefaultConfigurableFactory();
 
-    public selection(name: string, label: string, options: string[]) {
+    public selection(name: string, label: string, options: string[] | ((shape: Shape)=>string[])) {
         return new SelectionConfigurable(name, label, options);
     }
 

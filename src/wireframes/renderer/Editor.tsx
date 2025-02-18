@@ -210,6 +210,17 @@ export const Editor = React.memo((props: EditorProps) => {
                             zoom={viewBox.zoom}
                         />
                     }
+                    {onSelectItems && masterDiagram &&
+                        <SelectionAdorner
+                            layer={adornerSelectLayer.current!}
+                            engine={engine}
+                            onSelectItems={onSelectItems}
+                            previewStream={renderPreview.current}
+                            selectedDiagram={masterDiagram}
+                            selectionSet={selectionSet}
+                            zoom={viewBox.zoom}
+                        />
+                    }
 
                     {onChangeItemsAppearance &&
                         <TextAdorner

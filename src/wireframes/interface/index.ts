@@ -171,7 +171,7 @@ export interface ConstraintFactory {
 }
 
 export interface ConfigurableFactory {
-    selection(name: string, label: string, options: string[]): Configurable;
+    selection(name: string, label: string, options: string[] | ((shape: Shape)=>string[])): Configurable;
 
     slider(name: string, label: string, min: number, max: number): Configurable;
 
